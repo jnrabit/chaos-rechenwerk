@@ -5,6 +5,8 @@ Rechenwerk, mit gemessener physikalischer Stabilitäts-Wurzel.*
 
 **Jakob Notter, 2026 — eigenständiges Forschungsprojekt.**
 
+**Deutsch** · [English](README.en.md)
+
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20829024-blue)](https://doi.org/10.5281/zenodo.20829024)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey)](LICENSE)
 
