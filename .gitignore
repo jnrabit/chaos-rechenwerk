@@ -1,0 +1,39 @@
+# Build-Artefakte (C++/OpenCL)
+*.o
+*.out
+*.so
+*.bin
+
+# kompilierte Demonstrator-Binaries (werden lokal gebaut)
+/code/lyapunov
+/code/settle_boden
+/code/strom_resident
+/code/strom_richer
+/code/profile_aufraeum
+/code/profile_ossifikat
+/code/jitter_probe
+/code/gpu_gate
+/code/gpu_verify
+/code/gpu_mf
+/code/gpu_red
+/code/engine_gpu_*
+!/code/engine_gpu_*.cpp
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Lauf-Ausgaben / Daten-Dumps
+*.npz
+*.pkl
+*.log
+*.jsonl
+*.png
+build/
+
+# Hygiene-Hilfsskript (nicht Teil der Veröffentlichung)
+_cleanup.py
+
+# OS
+.DS_Store

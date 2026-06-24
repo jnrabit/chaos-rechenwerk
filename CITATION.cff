@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Rechnen auf einem chaotischen Substrat — ein Machbarkeitsbeweis"
+abstract: >-
+  Ein Machbarkeitsbeweis, dass ein chaotisches physikalisches Substrat — ein Feld
+  gekoppelter Lorenz-Attraktoren — als vollwertiges, funktional vollständiges und
+  Turing-fähiges Rechenwerk dienen kann, mit gemessener physikalischer
+  Stabilitäts-Wurzel (kontrahierender Arbeitspunkt, negativer Lyapunov-Exponent).
+authors:
+  - family-names: Notter
+    given-names: Jakob
+type: dataset
+license: CC-BY-NC-4.0
+version: "1.0"
+date-released: "2026-06-24"
+doi: 10.5281/zenodo.20829024
+url: "https://doi.org/10.5281/zenodo.20829024"
+keywords:
+  - chaos computing
+  - Lorenz attractor
+  - unconventional computing
+  - reservoir computing
+  - Lyapunov exponent
+  - feasibility proof
