@@ -32,6 +32,21 @@ Hardware und erst bei Skalierung — beides außerhalb des Rahmens dieses Beweis
 
 ---
 
+## Status- & Kollaborations-Hinweis
+
+> **Status- & Kollaborations-Hinweis:** Dieses Repository präsentiert einen vollständig verifizierten
+> mathematischen & numerischen Machbarkeitsbeweis für universelles, bit-exaktes Rechnen auf chaotischen
+> Substraten. Während die Software-Simulation den praktischen Geschwindigkeitsgewinn begrenzt, sind die
+> zugrunde liegenden Prinzipien (Kontraktion durch getriebene Lorenz-Systeme, λ = −0,69, regenerative
+> Anker) gezielt für die physikalische Implementierung konzipiert.
+>
+> **Ich verfolge derzeit keine aktive Weiterentwicklung des simulationsbasierten Codes.** Falls Sie eine
+> Forschungsgruppe in den Bereichen **Photonisches Rechnen, Memristor-Arrays oder optomechanische
+> Reservoirs** sind und diese Architektur auf echter analoger/physischer Hardware testen möchten, können
+> Sie diesen Code gerne nutzen oder für eine Zusammenarbeit Kontakt aufnehmen.
+
+---
+
 ## Wegweiser
 
 | Dokument | Inhalt |

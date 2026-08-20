@@ -35,6 +35,20 @@ scale — both outside the scope of this proof.
 
 ---
 
+## Status & Collaboration Note
+
+> **Status & Collaboration Note:** This repository presents a fully verified mathematical & numerical
+> proof of concept for universal, bit-exact computing on chaotic substrates. While software simulation
+> limits its practical speedup, the underlying principles (contraction via driven Lorenz systems,
+> λ = -0.69, regenerative anchors) are specifically designed for physical implementation.
+>
+> **I am currently not actively pursuing further simulation-based code development.** If you are a
+> research group working in **Photonic Computing, Memristor Arrays, or Optomechanical Reservoirs** and
+> wish to test this architecture on real analog/physical hardware, feel free to use this code or reach
+> out for collaboration.
+
+---
+
 ## Guide
 
 | Document | Content |
