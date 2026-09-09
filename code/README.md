@@ -33,6 +33,7 @@ g++ -O2 lyapunov.cpp -o lyapunov           # reines C++ (kein -lOpenCL)
 | Datei | Prüft / demonstriert |
 |---|---|
 | `lyapunov.cpp` | Kontraktion der ±363-Mulde (λ<0) vs. freies Chaos (λ>0), Benettin-Verfahren. |
+| `entropy.cpp` | Dynamische Entropie: volles Lyapunov-Spektrum (8 Exp.) + h_KS = Σ λ⁺ (Pesin). |
 | `engine_gpu_verify.cpp` | Einzelzell-Doppelkern-Dynamik (RK4, fp64) auf der GPU. |
 | `engine_gpu_mf.cpp` | Mean-Field-Kopplung (Tick-Anfangs-Schnappschuss). |
 | `engine_gpu_red.cpp` | Mean-Field mit GPU-Reduktion (resident, kein Pro-Tick-Readback). |

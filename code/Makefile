@@ -12,7 +12,7 @@ CXXFLAGS ?= -O2 -std=c++17
 OPENCL_LIBS = -lOpenCL
 
 # Reines C++ (kein OpenCL)
-PURE = lyapunov
+PURE = lyapunov entropy
 
 # OpenCL-Programme (je unter ihrem eigenen Namen gebaut)
 OCL = engine_gpu_verify engine_gpu_mf engine_gpu_red engine_gpu_warr \

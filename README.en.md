@@ -96,6 +96,7 @@ g++ -O2 profile_aufraeum.cpp -o profile_aufraeum -lOpenCL && ./profile_aufraeum
 | File | Checks |
 |---|---|
 | `lyapunov.cpp` | The ±363 well is *contracting* (λ<0) vs. free Lorenz chaos (λ>0) — the physical root of stability. |
+| `entropy.cpp` | Dynamic entropy: full Lyapunov spectrum (8 exponents) + h_KS = Σ λ⁺ (Pesin). |
 | `engine_gpu_verify.cpp` | Single-cell dual-core dynamics (RK4, fp64) on the GPU. |
 | `engine_gpu_mf.cpp` / `engine_gpu_red.cpp` | Mean-field coupling on the GPU (snapshot; GPU reduction). |
 | `engine_gpu_gate.cpp` | The gate primitive (logic) on the GPU. |

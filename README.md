@@ -94,6 +94,7 @@ g++ -O2 profile_aufraeum.cpp -o profile_aufraeum -lOpenCL && ./profile_aufraeum
 | Datei | Prüft |
 |---|---|
 | `lyapunov.cpp` | Die ±363-Mulde ist *kontrahierend* (λ<0) vs. freies Lorenz-Chaos (λ>0) — die physikalische Stabilitäts-Wurzel. |
+| `entropy.cpp` | Dynamische Entropie: volles Lyapunov-Spektrum (8 Exponenten) + h_KS = Σ λ⁺ (Pesin). |
 | `engine_gpu_verify.cpp` | Einzelzell-Doppelkern-Dynamik (RK4, fp64) auf der GPU. |
 | `engine_gpu_mf.cpp` / `engine_gpu_red.cpp` | Mean-Field-Kopplung auf der GPU (Schnappschuss; GPU-Reduktion). |
 | `engine_gpu_gate.cpp` | Das Gatter-Primitiv (Logik) auf der GPU. |
