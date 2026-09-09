@@ -32,6 +32,11 @@ __pycache__/
 *.png
 build/
 
+# Paper (LaTeX-Build)
+/paper/*.pdf
+/paper/*.aux
+/paper/*.synctex.gz
+
 # Hygiene-Hilfsskript (nicht Teil der Veröffentlichung)
 _cleanup.py
 

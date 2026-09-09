@@ -74,9 +74,11 @@ Python 3 with NumPy. Developed and measured on an AMD gfx1100.
 **Build & run (examples):**
 
 ```bash
-cd code
+# Build everything (including `gpu_gate`), one command — see code/Makefile:
+make
 
 # Pure dynamics — Lyapunov well test (no OpenCL needed, pure C++):
+cd code
 g++ -O2 lyapunov.cpp -o lyapunov && ./lyapunov
 
 # Settle-floor measurement (OpenCL):
@@ -103,8 +105,9 @@ g++ -O2 profile_aufraeum.cpp -o profile_aufraeum -lOpenCL && ./profile_aufraeum
 | `profile_aufraeum.cpp` / `profile_ossifikat.cpp` | Profiling (readback / settle scaling; host control). |
 | `verify_strom.py` / `verify_ossifikat.py` | Drive the `gpu_gate` binary; compare the result against a pure Python reference. |
 
-The scripts in [`code/requires-engine/`](code/requires-engine/) establish the **bit-exact** agreement
-GPU ↔ CPU, but for that they require the non-published production engine — see the README there.
+The scripts in [`code/requires-engine/`](code/requires-engine/) establish the **bit-near** agreement
+GPU ↔ CPU (dynamics ~1e-13, gate logic ~1e-14). They load a bundled **clean-room reference** of the
+published dynamics — the non-published production engine is not required. See the README there.
 
 ---
 

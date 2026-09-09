@@ -72,9 +72,11 @@ Python 3 mit NumPy. Entwickelt/gemessen auf AMD gfx1100.
 **Bauen & laufen (Beispiele):**
 
 ```bash
-cd code
+# Alles bauen (inkl. `gpu_gate`), ein Befehl — siehe code/Makefile:
+make
 
 # Reine Dynamik — Lyapunov-Mulde-Test (kein OpenCL nötig, reines C++):
+cd code
 g++ -O2 lyapunov.cpp -o lyapunov && ./lyapunov
 
 # Settle-Boden-Messung (OpenCL):
@@ -101,8 +103,10 @@ g++ -O2 profile_aufraeum.cpp -o profile_aufraeum -lOpenCL && ./profile_aufraeum
 | `profile_aufraeum.cpp` / `profile_ossifikat.cpp` | Profiling (Readback-/Settle-Skalierung; Host-Steuerung). |
 | `verify_strom.py` / `verify_ossifikat.py` | Treiben das `gpu_gate`-Binary; vergleichen das Ergebnis gegen eine reine Python-Referenz. |
 
-Die Skripte in [`code/requires-engine/`](code/requires-engine/) belegen die **bit-genaue** Übereinstimmung
-GPU ↔ CPU, benötigen dafür aber die nicht-veröffentlichte Produktions-Engine — siehe die README dort.
+Die Skripte in [`code/requires-engine/`](code/requires-engine/) belegen die **bit-nahe** Übereinstimmung
+GPU ↔ CPU (Dynamik ~1e-13, Gatter-Logik ~1e-14). Sie laden dafür eine beigefügte
+**Clean-Room-Referenz** der publizierten Dynamik — die nicht-veröffentlichte Produktions-Engine ist
+nicht nötig. Siehe die README dort.
 
 ---
 

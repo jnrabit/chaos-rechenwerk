@@ -1,0 +1,166 @@
+% main.tex — arXiv-Skelett für „Rechnen auf einem chaotischen Substrat"
+% Bauen:  pdflatex main && bibtex main && pdflatex main && pdflatex main
+%         (oder: latexmk -pdf main)
+%
+% arXiv-Hinweise (beim Einreichen):
+%   - Primäre Kategorie cs.ET (Emerging Technologies), sekundär nlin.CD (Chaotic Dynamics).
+%   - Lizenz: Paper unter arXiv-Standardlizenz; der Code bleibt CC BY-NC 4.0 (separat im Repo).
+%   - Abbildungen als PDF (nicht PNG) einbetten; die Quell-PNGs liegen im Repo unter files (1)/.
+%   - Bei „n" gekennzeichneten TODO-Stellen die Inhalte aus docs/BEWEIS_Chaos-Rechenwerk.md ziehen.
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\title{Universal Computation on a Chaotic Substrate:\\ a Feasibility Proof with a Measured Contracting Operating Point}
+
+\author{Jakob Notter\thanks{Independent researcher, \href{https://github.com/jnrabit}{github.com/jnrabit}}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We show that a field of coupled Lorenz systems, driven by a small sinusoidal term, can serve
+as a complete computing substrate. Each cell consists of two coupled Lorenz halves whose
+driven $w$-component develops two stable poles near $\pm 363$, forming a bistable switch that
+stores bits. A single regenerative gate term, which pulls a cell's $w$-component toward the
+anchor $\operatorname{sign}(\mathrm{NET})\cdot 363$, realizes functionally complete logic;
+because every output is re-regenerated onto the anchor, gates compose into arbitrary
+combinational networks with no accumulation of error over depth. We verify storage,
+AND/OR/NAND/XOR/XNOR logic, multi-stage chains, and a non-trivial application---a
+self-consistent knowledge store that admits fact triples and rejects contradictions---each
+against an independent reference. The stability underlying all correctness properties is not
+assumed but measured: Benettin's method yields a largest Lyapunov exponent
+$\lambda = -0.69$ at the operating point ($-1.23$ with the gate term), versus $+0.91$ for the
+undriven system, so the operating point contracts and actively extinguishes perturbations.
+Coupling the substrate to real hardware entropy (GPU temperature, CPU-cycle jitter) keeps the
+logic intact while making runs genuinely non-deterministic. This is a feasibility proof:
+computation on this substrate is possible in principle and in full, while any practical
+advantage would require physical analog hardware at scale, outside the scope of this work.
+\end{abstract}
+
+\section{Introduction}
+% TODO: Motivation, Stand der Forschung (Reservoir-/Chaos-Computing), Einordnung.
+% Kernbotschaft: der Arbeitspunkt ist *gemessen kontrahierend*; daraus folgen alle
+% Korrektheitseigenschaften als Konsequenzen einer einzigen physikalischen Tatsache.
+
+\section{The substrate}
+A cell consists of two coupled Lorenz half-systems (eight state variables
+$x_1,y_1,z_1,w_1,x_2,y_2,z_2,w_2$). Per half-system:
+\begin{align}
+  \dot{x} &= \sigma(y-x), \nonumber\\
+  \dot{y} &= x(\rho-z) - y + W\,w, \nonumber\\
+  \dot{z} &= xy - \beta z, \nonumber\\
+  \dot{w} &= -w + xz - W\,y,
+\end{align}
+with $\sigma=10$, $\rho=28$, $\beta=8/3$ (the classical chaotic Lorenz regime), integrated with
+RK4 and $dt=0.005$. Cells couple through a mean field on the $x$-channels
+($\dot{x}_1 \mathrel{+}= K(\bar{x}_1 - x_1)$, $K=0.05$), where $\bar{x}$ is a \emph{snapshot} of
+all cells at tick start, making the coupling order-independent and exactly parallelizable.
+
+The term $W$ is the drive,
+$W = 0.225 + 0.018\sin(1.8\,t) + \dots$. At this operating point the $w$-component develops
+\emph{two stable poles near $\pm 363$} --- an emergent bistable switch, not hard-coded.
+
+\section{Bit and memory}
+The two $\pm 363$ poles serve as the bit. A short state perturbation sets the bit (flips the cell
+into the desired wing), where it is then held by itself --- a non-volatile one-bit memory from
+pure dynamics. % TODO: Abbildung der Flügel (files (1)/, z.\,B. a1_ring_epizentrum.png).
+
+\section{Functionally complete logic}
+A gate is a feedback term pulling a cell's $w$-component toward a regenerated target:
+\begin{equation}
+  \dot{w}_1 \mathrel{+}= g_K\big(\operatorname{sign}(\mathrm{NET})\cdot 363 - w_1\big),
+\end{equation}
+where $\mathrm{NET}$ is the weighted sum of gate inputs plus bias. This single term realizes
+AND, OR, NAND, etc.; a READ gate copies a bit non-destructively.
+
+\textbf{The regeneration rule.} Regenerating the output onto the fixed anchor
+$\operatorname{sign}(\mathrm{NET})\cdot 363$ (rather than passing $\mathrm{NET}$ through raw) is
+the central construction decision: it makes gates \emph{chainable}, because every output is
+again a full-saturated $\pm 363$ bit. This rule reappears at three independent places
+(\S\ref{sec:scaling}, \S\ref{sec:contraction}, \S\ref{sec:entropy}).
+
+\section{Chaining and Turing capability}
+Multi-stage networks are built by holding intermediate results as cells and reading them as
+inputs to the next stage (verified: XNOR/XOR, three stages; a four-stage conflict condition).
+\emph{Depth independence (measured):} no error accumulates over depth --- the deepest network
+was the cleanest (bit-exact against reference), because each stage re-regenerates onto the
+$\pm 363$ fixed point. A pulse-clocked program counter, storing control unit, and conditional
+branching were shown on the precursor substrate, together establishing Turing capability. One
+architectural limit is stated explicitly: the substrate cannot clock itself; the clock is
+external.
+
+\section{Scaling on parallel hardware}
+\label{sec:scaling}
+The dynamics were ported to an OpenCL GPU data path (double precision) and verified in stages:
+dynamics bit-near ($\approx 10^{-13}$ over $10^3$ steps); the gate primitive \emph{bit-exact}
+on the GPU (the $\pm 363$ fixed point absorbs rounding differences); thousands of gates in one
+kernel launch; multi-stage nets without the sequential staging the 8-core limit had forced.
+% TODO: Speedup-Zahlen aus LEITFADEN §3 (70--85k ticks/s, 5.8x @ N=4096).
+
+\section{The physical root: measured contraction}
+\label{sec:contraction}
+By Benettin's method (two minimally separated trajectories, $\delta_0=10^{-9}$, renormalized
+against saturation):
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+State & $\lambda_{\max}$ & Meaning \\
+\midrule
+At operating point, in wing & $-0.69$ & contracting \\
+In wing, with gate term & $-1.23$ & more strongly contracting \\
+Pure Lorenz ($W=0$) & $+0.91$ & diverging (classical chaos) \\
+\bottomrule
+\end{tabular}
+\end{center}
+The damping timescale $1/|\lambda| \approx 160$--$290$ steps quantitatively explains the
+measured settling floor of $\sim 750$ steps. Even a generic start state falls into the
+contracting well --- the stability is a \emph{global} property of the operating point.
+% TODO: Abbildung lyapunov / Flügel (files (1)/).
+
+\section{Coupling to real physics}
+\label{sec:entropy}
+The substrate was coupled to real hardware entropy of the host machine: GPU temperature (slow
+drift) and CPU-cycle jitter (fast micro-variance). The logic remains intact (structurally: the
+drive deepens the well), while the system becomes non-deterministic --- repeated runs differ
+measurably, whereas uncoupled runs are bit-identical. This is the one place where the substrate
+does something digital logic does not do by itself: carry physical noise \emph{in} the
+computation.
+
+\section{A real application (illustration)}
+The core operation of a knowledge store with consistency checking: a new fact triple is checked
+against the existing triples for contradiction (same subject+predicate, different object), in
+parallel, in one pass; consistent triples are admitted, contradictory ones reported. Extended to
+rule operations (retraction, staging/ratification). Verified against an independent reference
+up to several hundred triples, with multi-bit-coded entities.
+
+\section{Scope and limits (honest)}
+\emph{Proven:} a chaotic Lorenz substrate can compute universally, with the stability measured
+as a contracting dynamics, every stage verified against a reference. \emph{Not proven:} a
+practical advantage. Three plausible candidates --- (a) entropy-in-computation for
+crypto/stochastic methods, (b) intrinsic error correction by the contracting well, (c) compute
+and store in the same place --- are all unrealizable \emph{in simulation} and would only appear
+in real analog hardware at scale.
+
+\section{Reproducibility}
+All measurements were run against an unchanged reference implementation (integrity hash-checked
+before and after each measurement). Code and full development log:
+\url{https://github.com/jnrabit/chaos-rechenwerk}; DOI:
+\href{https://doi.org/10.5281/zenodo.20829024}{10.5281/zenodo.20829024}.
+
+\bibliographystyle{plain}
+\begin{thebibliography}{9}
+\bibitem{notter2026chaos} J.~Notter,
+  \emph{Rechnen auf einem chaotischen Substrat --- ein Machbarkeitsbeweis},
+  2026, DOI: \href{https://doi.org/10.5281/zenodo.20829024}{10.5281/zenodo.20829024}.
+% TODO: weitere Referenzen (Lorenz 1963, Reservoir Computing, Chaos Computing, ...)
+\end{thebibliography}
+
+\end{document}
