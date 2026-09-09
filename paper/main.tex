@@ -1,12 +1,12 @@
-% main.tex — arXiv-Skelett für „Rechnen auf einem chaotischen Substrat"
-% Bauen:  pdflatex main && bibtex main && pdflatex main && pdflatex main
+% main.tex — arXiv-Papier für „Rechnen auf einem chaotischen Substrat"
+% Bauen:  pdflatex main && pdflatex main   (Literatur inline via thebibliography, kein bibtex)
 %         (oder: latexmk -pdf main)
+% Abbildungen: python3 make_figures.py .  (erzeugt fig_bistabilitaet.pdf, fig_lyapunov.pdf)
 %
 % arXiv-Hinweise (beim Einreichen):
 %   - Primäre Kategorie cs.ET (Emerging Technologies), sekundär nlin.CD (Chaotic Dynamics).
 %   - Lizenz: Paper unter arXiv-Standardlizenz; der Code bleibt CC BY-NC 4.0 (separat im Repo).
 %   - Abbildungen als PDF (nicht PNG) einbetten; die Quell-PNGs liegen im Repo unter files (1)/.
-%   - Bei „n" gekennzeichneten TODO-Stellen die Inhalte aus docs/BEWEIS_Chaos-Rechenwerk.md ziehen.
 \documentclass[11pt]{article}
 
 \usepackage[T1]{fontenc}
@@ -46,9 +46,32 @@ advantage would require physical analog hardware at scale, outside the scope of 
 \end{abstract}
 
 \section{Introduction}
-% TODO: Motivation, Stand der Forschung (Reservoir-/Chaos-Computing), Einordnung.
-% Kernbotschaft: der Arbeitspunkt ist *gemessen kontrahierend*; daraus folgen alle
-% Korrektheitseigenschaften als Konsequenzen einer einzigen physikalischen Tatsache.
+Computation on physical substrates that are not silicon logic has a long history. Two strands are
+closest to the present work. \emph{Reservoir computing} \cite{jaeger2001,maass2002} exploits the
+transient dynamics of a fixed, often chaotic recurrent network: only a linear readout is trained,
+and the substrate itself is treated as an untrained black box. \emph{Chaos computing}
+\cite{munakata2002,ditto2008} instead encodes logic directly in the state of a chaotic element,
+using the attractor's basins as the bit and steering it via parameters. Both leave a question open:
+is the computation an emergent, robust property of the substrate itself, or an artefact of the
+readout and control layered on top of it?
+
+This work answers that question for one concrete substrate by carrying the argument through end to
+end. We take a field of coupled Lorenz systems \cite{lorenz1963}, add a small periodic drive, and
+find that the operating point becomes \emph{contracting}---its largest Lyapunov exponent is
+\emph{measured} to be negative ($\lambda\approx-0.69$), in contrast to $+0.91$ for the undriven
+system. From this single measured fact all correctness properties follow as consequences: a
+bistable one-bit memory, functionally complete logic realized by one regenerative gate rule, gates
+that compose into arbitrary combinational networks with no error accumulation over depth, Turing
+capability, parallel scaling to thousands of cells, and coupling to genuine hardware entropy without
+loss of logic.
+
+The contributions are (i) a complete, every-stage-verified feasibility proof that a chaotic
+substrate can compute universally, and (ii) the demonstration that its correctness rests on a single
+physically measurable property---a contracting operating point---rather than on the choice of readout
+or control. We are explicit about what is \emph{not} shown: simulated on conventional hardware the
+substrate is slower than direct logic, and the potential advantages (entropy-in-computation,
+intrinsic error correction, in-memory computation) would materialize only in physical analog hardware
+at scale.
 
 \section{The substrate}
 A cell consists of two coupled Lorenz half-systems (eight state variables
@@ -71,7 +94,15 @@ $W = 0.225 + 0.018\sin(1.8\,t) + \dots$. At this operating point the $w$-compone
 \section{Bit and memory}
 The two $\pm 363$ poles serve as the bit. A short state perturbation sets the bit (flips the cell
 into the desired wing), where it is then held by itself --- a non-volatile one-bit memory from
-pure dynamics. % TODO: Abbildung der Flügel (files (1)/, z.\,B. a1_ring_epizentrum.png).
+pure dynamics (Fig.~\ref{fig:bistability}).
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig_bistabilitaet.pdf}
+  \caption{Bistable memory. The $w_1$-component of one cell settles onto one of two stable poles
+  and holds it; a state impulse (dotted line) flips the bit into the opposite pole, where it is
+  again held. The bit is a stable fixed point of the driven dynamics, not an encoded constant.}
+  \label{fig:bistability}
+\end{figure}
 
 \section{Functionally complete logic}
 A gate is a feedback term pulling a cell's $w$-component toward a regenerated target:
@@ -103,7 +134,10 @@ The dynamics were ported to an OpenCL GPU data path (double precision) and verif
 dynamics bit-near ($\approx 10^{-13}$ over $10^3$ steps); the gate primitive \emph{bit-exact}
 on the GPU (the $\pm 363$ fixed point absorbs rounding differences); thousands of gates in one
 kernel launch; multi-stage nets without the sequential staging the 8-core limit had forced.
-% TODO: Speedup-Zahlen aus LEITFADEN §3 (70--85k ticks/s, 5.8x @ N=4096).
+A GPU-side reduction removes the per-tick host-readback bottleneck, reaching
+$70$--$85$k ticks/s ($5.8\times$ at $N=4096$ cells); the settled conflict check drops to
+$\sim 7$\,ms. The register/write wall of the 8-core reference (a few cells) is lifted to thousands
+of cells and gates computing concurrently.
 
 \section{The physical root: measured contraction}
 \label{sec:contraction}
@@ -122,8 +156,21 @@ Pure Lorenz ($W=0$) & $+0.91$ & diverging (classical chaos) \\
 \end{center}
 The damping timescale $1/|\lambda| \approx 160$--$290$ steps quantitatively explains the
 measured settling floor of $\sim 750$ steps. Even a generic start state falls into the
-contracting well --- the stability is a \emph{global} property of the operating point.
-% TODO: Abbildung lyapunov / Flügel (files (1)/).
+contracting well --- the stability is a \emph{global} property of the operating point. The full
+8-dimensional spectrum (Fig.~\ref{fig:lyapunov}) confirms this: at the operating point all eight
+exponents are negative, so the Kolmogorov--Sinai entropy $h_{\mathrm{KS}}=\sum_i \lambda_i^+$
+\cite{pesin1977} vanishes, whereas the free Lorenz system has two positive exponents and
+$h_{\mathrm{KS}}\approx 1.8$. The drive turns a chaotic process into a regular one.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig_lyapunov.pdf}
+  \caption{Measured contraction. (a) Two nearly identical trajectories ($\delta_0=10^{-9}$) stay
+  together at the operating point but separate exponentially in the free Lorenz system. (b) The
+  full Lyapunov spectrum: all eight exponents are negative at the operating point
+  ($h_{\mathrm{KS}}=0$), whereas the undriven system has two positive exponents
+  ($h_{\mathrm{KS}}\approx 1.8$).}
+  \label{fig:lyapunov}
+\end{figure}
 
 \section{Coupling to real physics}
 \label{sec:entropy}
@@ -160,7 +207,34 @@ before and after each measurement). Code and full development log:
 \bibitem{notter2026chaos} J.~Notter,
   \emph{Rechnen auf einem chaotischen Substrat --- ein Machbarkeitsbeweis},
   2026, DOI: \href{https://doi.org/10.5281/zenodo.20829024}{10.5281/zenodo.20829024}.
-% TODO: weitere Referenzen (Lorenz 1963, Reservoir Computing, Chaos Computing, ...)
+
+\bibitem{lorenz1963} E.~N.~Lorenz,
+  Deterministic nonperiodic flow,
+  \emph{J. Atmos. Sci.} \textbf{20}, 130--141 (1963).
+
+\bibitem{jaeger2001} H.~Jaeger,
+  The ``echo state'' approach to analysing and training recurrent neural networks,
+  GMD Report 148, German National Research Center for Information Technology (2001).
+
+\bibitem{maass2002} W.~Maass, T.~Natschläger, H.~Markram,
+  Real-time computing without stable states: a new framework for neural computation based on
+  perturbations, \emph{Neural Comput.} \textbf{14}, 2531--2560 (2002).
+
+\bibitem{munakata2002} T.~Munakata, S.~Sinha, W.~L.~Ditto,
+  Chaos computing: implementation of fundamental logical gates by chaotic elements,
+  \emph{IEEE Trans. Circuits Syst. I} \textbf{49}, 1629--1633 (2002).
+
+\bibitem{ditto2008} W.~L.~Ditto, K.~Murali, S.~Sinha,
+  Chaos computing: ideas and implementations,
+  \emph{Phil. Trans. R. Soc. A} \textbf{366}, 653--664 (2008).
+
+\bibitem{benettin1980} G.~Benettin, L.~Galgani, A.~Giorgilli, J.-M.~Strelcyn,
+  Lyapunov characteristic exponents for smooth dynamical systems and for Hamiltonian systems,
+  \emph{Meccanica} \textbf{15}, 9--20 (1980).
+
+\bibitem{pesin1977} Ya.~B.~Pesin,
+  Characteristic Lyapunov exponents and smooth ergodic theory,
+  \emph{Russian Math. Surveys} \textbf{32}, 55--114 (1977).
 \end{thebibliography}
 
 \end{document}
